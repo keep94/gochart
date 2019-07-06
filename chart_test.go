@@ -104,6 +104,46 @@ func TestChartDimensions(t *testing.T) {
   assertEqual(t, 5, chart.ColCount())
 }
 
+func TestNewChartPanic(t *testing.T) {
+  xs := gochart.NewInts(1, 1, 10)
+  ys := gochart.NewInts(1, 1, 9)
+  assertPanic(
+      t,
+      func() {
+        gochart.NewChart(xs, ys)
+      },
+  )
+}
+
+func TestApplyInvPanic(t *testing.T) {
+  xs := gochart.NewFloats(1.0, 1.0, 10)
+  assertPanic(
+      t,
+      func() {
+        xs.ApplyInv(math.Sqrt, 20.0, 20.0)
+      },
+  )
+}
+
+func TestFloatsPanic(t *testing.T) {
+  xs := gochart.NewFloats(1.0, 1.0, 10)
+  assertPanic(t, func() { xs.Value(10) })
+  assertPanic(t, func() { xs.Value(-1) })
+}
+
+func TestIntsPanic(t *testing.T) {
+  xs := gochart.NewInts(1, 1, 10)
+  assertPanic(t, func() { xs.Value(10) })
+  assertPanic(t, func() { xs.Value(-1) })
+}
+
+func TestValuesPanic(t *testing.T) {
+  xs := gochart.NewFloats(1.0, 1.0, 10)
+  ys := xs.Apply(math.Sqrt)
+  assertPanic(t, func() { ys.Value(10) })
+  assertPanic(t, func() { ys.Value(-1) })
+}
+
 func assertValuesEqual(
     t *testing.T, ys gochart.Values, expectedValues ...interface{}) {
   t.Helper()
@@ -154,4 +194,13 @@ func assertCloseTo(t *testing.T, expected float64, actual float64) {
   if math.Abs((expected - actual) / expected) > 0.0001 {
     t.Errorf("Expected %v, got %v", expected, actual)
   }
+}
+
+func assertPanic(t *testing.T, f func()) {
+  t.Helper()
+  defer func() {
+    recover()
+  }()
+  f()
+  t.Error("Expected panic")
 }
