@@ -216,9 +216,11 @@ func ExampleSquare() {
   xs := gochart.NewInts(1, 1, 10)
   ys := xs.Apply(func(x int64) int64 { return x*x })
   var builder strings.Builder
-  gochart.NewChart(xs, ys).WriteTo(&builder)
+  n, err := gochart.NewChart(xs, ys).WriteTo(&builder)
+  fmt.Println(n, err)
   fmt.Println(builder.String())
   // Output:
+  // 108 <nil>
   // +--+---+
   // | 1|  1|
   // | 2|  4|
