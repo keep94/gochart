@@ -2,7 +2,9 @@ package gochart_test
 
 import (
   "context"
+  "fmt"
   "math"
+  "strings"
 
   "github.com/keep94/gochart"
   "github.com/keep94/gomath"
@@ -213,7 +215,9 @@ func ExampleChart_WriteTo() {
 func ExampleSquare() {
   xs := gochart.NewInts(1, 1, 10)
   ys := xs.Apply(func(x int64) int64 { return x*x })
-  gochart.NewChart(xs, ys).WriteTo(nil)
+  var builder strings.Builder
+  gochart.NewChart(xs, ys).WriteTo(&builder)
+  fmt.Println(builder.String())
   // Output:
   // +--+---+
   // | 1|  1|
