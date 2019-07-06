@@ -1,2 +1,2 @@
-// Package gochart makes charts of functions
+// Package gochart makes numerical charts of mathematical functions.
 package gochart
