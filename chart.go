@@ -170,23 +170,23 @@ func YFormat(fmtStr string) Option {
   }
 }
 
-// RowCount sets the number of rows in the chart. The default number of rows
+// NumRows sets the number of rows in the chart. The default number of rows
 // is the minimum number of rows needed to show all the values given the
-// number of columns. If neither rowCount or colCount are set, rowCount
-// defaults to the number of values and colCount defaults to 1.
-func RowCount(count int) Option {
+// number of columns. If neither numRows or numCols are set, numRows
+// defaults to the number of values and numCols defaults to 1.
+func NumRows(count int) Option {
   return func(s *settingsType) {
-    s.rowCount = count
+    s.numRows = count
   }
 }
 
-// ColCount sets the number of columns in the chart. The default number of
+// NumCols sets the number of columns in the chart. The default number of
 // columns is the minimum number of columns needed to show all the values
-// given the number of rows. If neither rowCount or colCount are set, colCount
-// defaults to 1 and rowCount defaults to the number of values.
-func ColCount(count int) Option {
+// given the number of rows. If neither numRows or numCols are set, numCols
+// defaults to 1 and numRows defaults to the number of values.
+func NumCols(count int) Option {
   return func(s *settingsType) {
-    s.colCount = count
+    s.numCols = count
   }
 }
 
@@ -194,8 +194,8 @@ func ColCount(count int) Option {
 type Chart struct {
   header string
   xyFormat string
-  rowCount int
-  colCount int
+  numRows int
+  numCols int
   xyValues xyValuesType
 }
 
@@ -212,16 +212,16 @@ func NewChart(xs, ys Values, options ...Option) *Chart {
   xyValues := createXYValues(xs, ys, settings.xFormat, settings.yFormat)
   xwidth, ywidth := xyValues.widths()
   return &Chart{
-      header: createHeader(xwidth, ywidth, settings.colCount),
+      header: createHeader(xwidth, ywidth, settings.numCols),
       xyFormat: createXYFormat(xwidth, ywidth),
-      rowCount: settings.rowCount,
-      colCount: settings.colCount,
+      numRows: settings.numRows,
+      numCols: settings.numCols,
       xyValues: xyValues}
 }
 
-func createHeader(xwidth, ywidth, colCount int) string {
+func createHeader(xwidth, ywidth, numCols int) string {
   piece := "+" + strings.Repeat("-", xwidth) + "+" + strings.Repeat("-", ywidth)
-  return fmt.Sprintf("%s+", strings.Repeat(piece, colCount))
+  return fmt.Sprintf("%s+", strings.Repeat(piece, numCols))
 }
 
 func createXYFormat(xwidth, ywidth int) string {
@@ -241,8 +241,8 @@ func (c *Chart) WriteTo(w io.Writer) (n int, err error) {
   if err != nil {
     return
   }
-  for i := 0; i < c.rowCount; i++ {
-    for j := 0; j < c.colCount; j++ {
+  for i := 0; i < c.numRows; i++ {
+    for j := 0; j < c.numCols; j++ {
       xyValue := c.xy(i, j)
       nn, err = fmt.Fprintf(w, c.xyFormat, xyValue.x, xyValue.y)
       n += nn
@@ -261,18 +261,18 @@ func (c *Chart) WriteTo(w io.Writer) (n int, err error) {
   return
 }
 
-// RowCount returns the number of rows in this chart.
-func (c *Chart) RowCount() int {
-  return c.rowCount
+// NumRows returns the number of rows in this chart.
+func (c *Chart) NumRows() int {
+  return c.numRows
 }
 
-// ColCount returns the number of columns in this chart.
-func (c *Chart) ColCount() int {
-  return c.colCount
+// NumCols returns the number of columns in this chart.
+func (c *Chart) NumCols() int {
+  return c.numCols
 }
 
 func (c *Chart) xy(row, col int) xyValueType {
-  idx := row + c.rowCount*col
+  idx := row + c.numRows*col
   var result xyValueType
   if idx < len(c.xyValues) {
     result = c.xyValues[idx]
@@ -314,8 +314,8 @@ type option func(s *settingsType)
 type settingsType struct {
   xFormat string
   yFormat string
-  rowCount int
-  colCount int
+  numRows int
+  numCols int
 }
 
 func (s *settingsType) applyOptions(options []Option) {
@@ -325,21 +325,17 @@ func (s *settingsType) applyOptions(options []Option) {
 }
 
 func (s *settingsType) computeDimensions(count int) {
-  if s.rowCount <= 0 && s.colCount <= 0 {
-    s.rowCount = count
-    s.colCount = 1
+  if s.numRows <= 0 && s.numCols <= 0 {
+    s.numRows = count
+    s.numCols = 1
     return
   }
-  if s.rowCount <= 0 {
-    colCount := s.colCount
-    rowCount := (count + colCount - 1) / colCount
-    s.rowCount = rowCount
+  if s.numRows <= 0 {
+    s.numRows = (count + s.numCols - 1) / s.numCols
     return
   }
-  if s.colCount <= 0 {
-    rowCount := s.rowCount
-    colCount := (count + rowCount - 1) / rowCount
-    s.colCount = colCount
+  if s.numCols <= 0 {
+    s.numCols = (count + s.numRows - 1) / s.numRows
     return
   }
 }

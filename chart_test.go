@@ -91,17 +91,17 @@ func TestApplyInvFloatReverse(t *testing.T) {
 func TestChartDimensions(t *testing.T) {
   xs := gochart.NewInts(1, 1, 100)
   chart := gochart.NewChart(xs, xs)
-  assertEqual(t, 100, chart.RowCount())
-  assertEqual(t, 1, chart.ColCount())
-  chart = gochart.NewChart(xs, xs, gochart.RowCount(33))
-  assertEqual(t, 33, chart.RowCount())
-  assertEqual(t, 4, chart.ColCount())
-  chart = gochart.NewChart(xs, xs, gochart.ColCount(3))
-  assertEqual(t, 34, chart.RowCount())
-  assertEqual(t, 3, chart.ColCount())
-  chart = gochart.NewChart(xs, xs, gochart.ColCount(5), gochart.RowCount(25))
-  assertEqual(t, 25, chart.RowCount())
-  assertEqual(t, 5, chart.ColCount())
+  assertEqual(t, 100, chart.NumRows())
+  assertEqual(t, 1, chart.NumCols())
+  chart = gochart.NewChart(xs, xs, gochart.NumRows(33))
+  assertEqual(t, 33, chart.NumRows())
+  assertEqual(t, 4, chart.NumCols())
+  chart = gochart.NewChart(xs, xs, gochart.NumCols(3))
+  assertEqual(t, 34, chart.NumRows())
+  assertEqual(t, 3, chart.NumCols())
+  chart = gochart.NewChart(xs, xs, gochart.NumCols(5), gochart.NumRows(25))
+  assertEqual(t, 25, chart.NumRows())
+  assertEqual(t, 5, chart.NumCols())
 }
 
 func TestNewChartPanic(t *testing.T) {

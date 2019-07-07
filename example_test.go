@@ -16,7 +16,7 @@ func ExampleInts_ApplyBigIntCh() {
   uglies := gomath.Ugly(ctx, 3, 5, 7)
   xs := gochart.NewInts(1, 1, 100)
   ys := xs.ApplyBigIntCh(uglies)
-  gochart.NewChart(xs, ys, gochart.ColCount(4)).WriteTo(nil)
+  gochart.NewChart(xs, ys, gochart.NumCols(4)).WriteTo(nil)
   // Output:
   // +---+-----+---+-----+---+-----+---+-----+
   // |  1|    1| 26|  343| 51| 2625| 76|11025|
@@ -52,7 +52,7 @@ func ExampleFloats_Apply() {
   xs := gochart.NewFloats(1.0, 1.0, 100)
   ys := xs.Apply(math.Sqrt)
   gochart.NewChart(
-      xs, ys, gochart.ColCount(4), gochart.YFormat("%.4f")).WriteTo(nil)
+      xs, ys, gochart.NumCols(4), gochart.YFormat("%.4f")).WriteTo(nil)
   // Output:
   // +---+-------+---+-------+---+-------+---+-------+
   // |  1| 1.0000| 26| 5.0990| 51| 7.1414| 76| 8.7178|
@@ -92,7 +92,7 @@ func ExampleFloats_ApplyInv() {
       0.0,
       5.0)
   gochart.NewChart(
-      xs, ys, gochart.RowCount(50), gochart.YFormat("%.4f")).WriteTo(nil)
+      xs, ys, gochart.NumRows(50), gochart.YFormat("%.4f")).WriteTo(nil)
   // Output:
   // +---+------+---+------+---+------+---+------+---+------+---+------+
   // |  1|1.0000| 51|3.2963|101|3.6016|151|3.7761|201|3.8981|251|3.9917|
@@ -154,7 +154,7 @@ func ExampleChart_WriteTo() {
   gochart.NewChart(
       xs,
       ys,
-      gochart.RowCount(50),
+      gochart.NumRows(50),
       gochart.XFormat("%.2f"),
       gochart.YFormat("%.4f")).WriteTo(nil)
   // Output:
