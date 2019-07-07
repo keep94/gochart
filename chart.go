@@ -156,17 +156,17 @@ type Values interface {
 // Option represents an option for creating a chart.
 type Option option
 
-// XFormat sets the format string for formatting X values, default is "%v"
-func XFormat(fmtStr string) Option {
+// FormatX sets the format string for formatting X values, default is "%v"
+func FormatX(fmtStr string) Option {
   return func(s *settingsType) {
-    s.xFormat = fmtStr
+    s.formatX = fmtStr
   }
 }
 
-// YFormat sets the format string for formatting Y values, default is "%v"
-func YFormat(fmtStr string) Option {
+// FormatY sets the format string for formatting Y values, default is "%v"
+func FormatY(fmtStr string) Option {
   return func(s *settingsType) {
-    s.yFormat = fmtStr
+    s.formatY = fmtStr
   }
 }
 
@@ -193,7 +193,7 @@ func NumCols(count int) Option {
 // Chart represents a chart of X and Y values.
 type Chart struct {
   header string
-  xyFormat string
+  formatXY string
   numRows int
   numCols int
   xyValues xyValuesType
@@ -206,14 +206,14 @@ func NewChart(xs, ys Values, options ...Option) *Chart {
   if xs.Len() != ys.Len() {
     panic("xs and ys must have same length")
   }
-  settings := &settingsType{xFormat: "%v", yFormat: "%v"}
+  settings := &settingsType{formatX: "%v", formatY: "%v"}
   settings.applyOptions(options)
   settings.computeDimensions(xs.Len())
-  xyValues := createXYValues(xs, ys, settings.xFormat, settings.yFormat)
+  xyValues := createXYValues(xs, ys, settings.formatX, settings.formatY)
   xwidth, ywidth := xyValues.widths()
   return &Chart{
       header: createHeader(xwidth, ywidth, settings.numCols),
-      xyFormat: createXYFormat(xwidth, ywidth),
+      formatXY: createFormatXY(xwidth, ywidth),
       numRows: settings.numRows,
       numCols: settings.numCols,
       xyValues: xyValues}
@@ -224,7 +224,7 @@ func createHeader(xwidth, ywidth, numCols int) string {
   return fmt.Sprintf("%s+", strings.Repeat(piece, numCols))
 }
 
-func createXYFormat(xwidth, ywidth int) string {
+func createFormatXY(xwidth, ywidth int) string {
   return "|%" + strconv.Itoa(xwidth) + "s|%" + strconv.Itoa(ywidth) + "s"
 }
 
@@ -244,7 +244,7 @@ func (c *Chart) WriteTo(w io.Writer) (n int, err error) {
   for i := 0; i < c.numRows; i++ {
     for j := 0; j < c.numCols; j++ {
       xyValue := c.xy(i, j)
-      nn, err = fmt.Fprintf(w, c.xyFormat, xyValue.x, xyValue.y)
+      nn, err = fmt.Fprintf(w, c.formatXY, xyValue.x, xyValue.y)
       n += nn
       if err != nil {
         return
@@ -288,11 +288,11 @@ type xyValueType struct {
 type xyValuesType []xyValueType
 
 func createXYValues(
-    xs, ys Values, xformat, yformat string) xyValuesType {
+    xs, ys Values, formatX, formatY string) xyValuesType {
   result := make(xyValuesType, xs.Len())
   for i := 0; i < xs.Len(); i++ {
-    result[i].x = fmt.Sprintf(xformat, xs.Value(i))
-    result[i].y = fmt.Sprintf(yformat, ys.Value(i))
+    result[i].x = fmt.Sprintf(formatX, xs.Value(i))
+    result[i].y = fmt.Sprintf(formatY, ys.Value(i))
   }
   return result
 }
@@ -312,8 +312,8 @@ func (xy xyValuesType) widths() (xwidth int, ywidth int) {
 type option func(s *settingsType)
 
 type settingsType struct {
-  xFormat string
-  yFormat string
+  formatX string
+  formatY string
   numRows int
   numCols int
 }

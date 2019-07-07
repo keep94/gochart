@@ -52,7 +52,7 @@ func ExampleFloats_Apply() {
   xs := gochart.NewFloats(1.0, 1.0, 100)
   ys := xs.Apply(math.Sqrt)
   gochart.NewChart(
-      xs, ys, gochart.NumCols(4), gochart.YFormat("%.4f")).WriteTo(nil)
+      xs, ys, gochart.NumCols(4), gochart.FormatY("%.4f")).WriteTo(nil)
   // Output:
   // +---+-------+---+-------+---+-------+---+-------+
   // |  1| 1.0000| 26| 5.0990| 51| 7.1414| 76| 8.7178|
@@ -92,7 +92,7 @@ func ExampleFloats_ApplyInv() {
       0.0,
       5.0)
   gochart.NewChart(
-      xs, ys, gochart.NumRows(50), gochart.YFormat("%.4f")).WriteTo(nil)
+      xs, ys, gochart.NumRows(50), gochart.FormatY("%.4f")).WriteTo(nil)
   // Output:
   // +---+------+---+------+---+------+---+------+---+------+---+------+
   // |  1|1.0000| 51|3.2963|101|3.6016|151|3.7761|201|3.8981|251|3.9917|
@@ -155,8 +155,8 @@ func ExampleChart_WriteTo() {
       xs,
       ys,
       gochart.NumRows(50),
-      gochart.XFormat("%.2f"),
-      gochart.YFormat("%.4f")).WriteTo(nil)
+      gochart.FormatX("%.2f"),
+      gochart.FormatY("%.4f")).WriteTo(nil)
   // Output:
   // +----+------+----+------+----+------+----+------+
   // |0.01|0.0100|0.51|0.4882|1.01|0.8468|1.51|0.9982|
