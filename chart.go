@@ -7,6 +7,8 @@ import (
   "os"
   "strconv"
   "strings"
+
+  "github.com/keep94/gomath"
 )
 
 const (
@@ -115,14 +117,11 @@ func (f *Floats) Apply(fn func(float64) float64) Values {
 // ApplyInv applies the inverse of fn to each of these X values and returns the
 // resulting Y values. The Y values that ApplyInv produces will be between
 // start and end. fn must be monotone increasing or decreasing between
-// start and end. end > start or ApplyInv panics.
+// start and end.
 func (f *Floats) ApplyInv(fn func(float64) float64, start, end float64) Values {
-  if end <= start {
-    panic("end must be greater than start")
-  }
   result := make(valueSlice, f.count)
   for i := 0; i < f.count; i++ {
-    result[i] = inverse(f.value(i), fn, start, end)
+    result[i] = gomath.Inverse(fn, f.value(i), start, end)
   }
   return result
 }
@@ -351,32 +350,4 @@ func (v valueSlice) Value(idx int) interface{} {
 
 func (v valueSlice) Len() int {
   return len(v)
-}
-
-func inverse(
-    x float64,
-    f func(float64) float64,
-    lower float64,
-    upper float64) float64 {
-  var g func(float64) float64
-  if f(lower) > f(upper) {
-    g = func(val float64) float64 {
-      return x - f(val)
-    }
-  } else {
-    g = func(val float64) float64 {
-      return f(val) - x
-    }
-  }
-  step := (upper - lower) / 2.0
-  result := (upper + lower) / 2.0
-  for i := 0; i < 53; i++ {
-    step /= 2.0
-    if g(result) > 0.0 {
-      result -= step
-    } else {
-      result += step
-    }
-  }
-  return result
 }

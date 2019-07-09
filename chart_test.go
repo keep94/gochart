@@ -115,16 +115,6 @@ func TestNewChartPanic(t *testing.T) {
   )
 }
 
-func TestApplyInvPanic(t *testing.T) {
-  xs := gochart.NewFloats(1.0, 1.0, 10)
-  assertPanic(
-      t,
-      func() {
-        xs.ApplyInv(math.Sqrt, 20.0, 20.0)
-      },
-  )
-}
-
 func TestFloatsPanic(t *testing.T) {
   xs := gochart.NewFloats(1.0, 1.0, 10)
   assertPanic(t, func() { xs.Value(10) })
