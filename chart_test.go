@@ -25,9 +25,9 @@ func TestApplyBigInt(t *testing.T) {
   assertBigValuesEqual(t, ys, 100, 121, 144, 169)
 }
 
-func TestApplyBigIntCh(t *testing.T) {
+func TestApplyBigIntChan(t *testing.T) {
   xs := gochart.NewInts(-1, 3, 10)
-  ys := xs.ApplyBigIntCh(to30By2())
+  ys := xs.ApplyBigIntChan(to30By2())
   assertBigValuesEqual(t, ys, 0, 4, 10, 16, 22, 28, 0, 0, 0, 0)
 }
 

@@ -45,12 +45,12 @@ func ExampleInts_ApplyBigInt() {
   // +---+---------+---+---------+---+---------+---+---------+
 }
 
-func ExampleInts_ApplyBigIntCh() {
+func ExampleInts_ApplyBigIntChan() {
   ctx, cancel := context.WithCancel(context.Background())
   defer cancel()
   uglies := gomath.Ugly(ctx, 3, 5, 7)
   xs := gochart.NewInts(1, 1, 100)
-  ys := xs.ApplyBigIntCh(uglies)
+  ys := xs.ApplyBigIntChan(uglies)
   gochart.NewChart(xs, ys, gochart.NumCols(4)).WriteTo(nil)
   // Output:
   // +---+-----+---+-----+---+-----+---+-----+

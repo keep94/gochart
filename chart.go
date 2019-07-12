@@ -49,13 +49,13 @@ func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
   return result
 }
 
-// ApplyBigIntCh uses ch to return the resulting Y values.
+// ApplyBigIntChan uses ch to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
 // off ch. If the X value is 2, the corresponding Y value will be the second
 // value off of ch etc. If the X value is less than 1, the corresponding Y
 // value will be 0. If the X value is greater than the number of values in Ch,
 // the corresponding Y value is also 0.
-func (i *Ints) ApplyBigIntCh(ch <-chan *big.Int) Values {
+func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
   result := make(valueSlice, i.count)
   ok := true
   var val *big.Int
