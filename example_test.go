@@ -11,6 +11,7 @@ import (
 )
 
 func ExampleInts_ApplyBigInt() {
+  // From the github.com/keep94/gomath package.
   p := gomath.NewPartition()
   xs := gochart.NewInts(1, 1, 100)
   ys := xs.ApplyBigInt(p.Chart)
@@ -48,6 +49,7 @@ func ExampleInts_ApplyBigInt() {
 func ExampleInts_ApplyBigIntChan() {
   ctx, cancel := context.WithCancel(context.Background())
   defer cancel()
+  // From the github.com/keep94/gomath package
   uglies := gomath.Ugly(ctx, 3, 5, 7)
   xs := gochart.NewInts(1, 1, 100)
   ys := xs.ApplyBigIntChan(uglies)
