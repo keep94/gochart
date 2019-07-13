@@ -31,6 +31,31 @@ func TestApplyBigIntChan(t *testing.T) {
   assertBigValuesEqual(t, ys, 0, 4, 10, 16, 22, 28, 0, 0, 0, 0)
 }
 
+func TestApplyBigIntChanNilValues(t *testing.T) {
+  xs := gochart.NewInts(1, 1, 5)
+  assertPanic(t, func() {
+    xs.ApplyBigIntChan(nilBigInts())
+  })
+}
+
+func TestApplyChan(t *testing.T) {
+  xs := gochart.NewInts(-1, 3, 10)
+  ys := xs.ApplyChan(to30By2Int())
+  assertValuesEqual(
+      t,
+      ys,
+      int64(0),
+      int64(4),
+      int64(10),
+      int64(16),
+      int64(22),
+      int64(28),
+      int64(0),
+      int64(0),
+      int64(0),
+      int64(0))
+}
+
 func TestApplyFloat(t *testing.T) {
   xs := gochart.NewFloats(1.0, 2.0, 4)
   ys := xs.Apply(func(x float64) float64 {
@@ -174,6 +199,30 @@ func to30By2() <-chan *big.Int {
     defer close(result)
     for i := 2; i <= 30; i += 2 {
       result <- big.NewInt(int64(i))
+    }
+  }()
+  return result
+}
+
+func nilBigInts() <- chan *big.Int {
+  result := make(chan *big.Int)
+  go func() {
+    defer close(result)
+    result <- big.NewInt(3)
+    result <- big.NewInt(3)
+    result <- nil
+    result <- big.NewInt(3)
+    result <- big.NewInt(3)
+  }()
+  return result
+}
+
+func to30By2Int() <-chan int64 {
+  result := make(chan int64)
+  go func() {
+    defer close(result)
+    for i := int64(2); i <= 30; i +=2 {
+      result <- i
     }
   }()
   return result
