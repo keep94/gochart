@@ -13,6 +13,7 @@ import (
 
 const (
   kIdxOutOfRange = "idx out of range"
+  kNoMoreValues = "No more values on channel"
 )
 
 // Ints is a sequence of integer X values.
@@ -52,10 +53,10 @@ func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
 // ApplyBigIntChan uses ch to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
 // off ch. If the X value is 2, the corresponding Y value will be the second
-// value off of ch etc. If the X value is less than 1, the corresponding Y
-// value will be 0. If the X value is greater than the number of values in ch,
-// the corresponding Y value is also 0.
-// ApplyBigIntChan panics if it encounters nil values on ch.
+// value off of ch etc. ApplyBigIntChan panics If any of the X values are
+// less than one or greater then the number of values in ch.
+// ApplyBigIntChan panics if the X values decrease.
+// ApplyBigIntChan panics if it encounters any nil values in ch.
 func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
   return i.applyChan(bigIntChanType(ch))
 }
@@ -63,9 +64,9 @@ func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
 // ApplyChan uses ch to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
 // off ch. If the X value is 2, the corresponding Y value will be the second
-// value off of ch etc. If the X value is less than 1, the corresponding Y
-// value will be 0. If the X value is greater than the number of values in ch,
-// the corresponding Y value is also 0.
+// value off of ch etc. ApplyChan panics if any of the X values are less than
+// one or greater than the number of values in ch.
+// ApplyChan panics if the X values decrease.
 func (i *Ints) ApplyChan(ch <-chan int64) Values {
   return i.applyChan(intChanType(ch))
 }
@@ -86,55 +87,51 @@ func (i *Ints) value(idx int) int64 {
 }
 
 func (i *Ints) applyChan(ch chanType) Values {
+  if i.inc < 0 {
+    panic("Increment less than 0")
+  }
+  if i.start < 1 {
+    panic("First X less than 1")
+  }
   result := make(valueSlice, i.count)
-  ok := true
   var val interface{}
   var valIndex int64
   for j := 0; j < i.count; j++ {
     idx := i.value(j)
-    for ok && valIndex < idx {
-      val, ok = ch.read()
+    for valIndex < idx {
+      val = ch.read()
       valIndex++
     }
-    if val == nil {
-      result[j] = ch.zero()
-    } else {
-      result[j] = val
-    }
+    result[j] = val
   }
   return result
 }
 
 type chanType interface {
-  read() (val interface{}, ok bool)
-  zero() interface{}
+  read() interface{}
 }
 
 type bigIntChanType <-chan *big.Int
 
-func (b bigIntChanType) read() (interface{}, bool) {
+func (b bigIntChanType) read() interface{} {
   val, ok := <-b
   if !ok {
-    return nil, false
+    panic(kNoMoreValues)
   }
   if val == nil {
     panic("nil *big.Int encountered on channel")
   }
-  return val, ok
-}
-
-func (b bigIntChanType) zero() interface{} {
-  return big.NewInt(0)
+  return val
 }
 
 type intChanType <-chan int64
 
-func (i intChanType) read() (interface{}, bool) {
+func (i intChanType) read() interface{} {
   val, ok := <-i
   if !ok {
-    return nil, false
+    panic(kNoMoreValues)
   }
-  return val, ok
+  return val
 }
 
 func (i intChanType) zero() interface{} {

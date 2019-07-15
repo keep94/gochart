@@ -26,9 +26,36 @@ func TestApplyBigInt(t *testing.T) {
 }
 
 func TestApplyBigIntChan(t *testing.T) {
-  xs := gochart.NewInts(-1, 3, 10)
+  xs := gochart.NewInts(3, 3, 5)
   ys := xs.ApplyBigIntChan(to30By2())
-  assertBigValuesEqual(t, ys, 0, 4, 10, 16, 22, 28, 0, 0, 0, 0)
+  assertBigValuesEqual(t, ys, 6, 12, 18, 24, 30)
+}
+
+func TestApplyBigIntChanSame(t *testing.T) {
+  xs := gochart.NewInts(3, 0, 5)
+  ys := xs.ApplyBigIntChan(to30By2())
+  assertBigValuesEqual(t, ys, 6, 6, 6, 6, 6)
+}
+
+func TestApplyBigIntChanLess1(t *testing.T) {
+  xs := gochart.NewInts(0, 3, 5)
+  assertPanic(t, func() {
+    xs.ApplyBigIntChan(to30By2())
+  })
+}
+
+func TestApplyBigIntChanGreater(t *testing.T) {
+  xs := gochart.NewInts(3, 3, 6)
+  assertPanic(t, func() {
+    xs.ApplyBigIntChan(to30By2())
+  })
+}
+
+func TestApplyBigIntChanDown(t *testing.T) {
+  xs := gochart.NewInts(15, -3, 5)
+  assertPanic(t, func() {
+    xs.ApplyBigIntChan(to30By2())
+  })
 }
 
 func TestApplyBigIntChanNilValues(t *testing.T) {
@@ -39,21 +66,38 @@ func TestApplyBigIntChanNilValues(t *testing.T) {
 }
 
 func TestApplyChan(t *testing.T) {
-  xs := gochart.NewInts(-1, 3, 10)
+  xs := gochart.NewInts(3, 3, 5)
   ys := xs.ApplyChan(to30By2Int())
   assertValuesEqual(
-      t,
-      ys,
-      int64(0),
-      int64(4),
-      int64(10),
-      int64(16),
-      int64(22),
-      int64(28),
-      int64(0),
-      int64(0),
-      int64(0),
-      int64(0))
+      t, ys, int64(6), int64(12), int64(18), int64(24), int64(30))
+}
+
+func TestApplyChanSame(t *testing.T) {
+  xs := gochart.NewInts(3, 0, 5)
+  ys := xs.ApplyChan(to30By2Int())
+  assertValuesEqual(
+      t, ys, int64(6), int64(6), int64(6), int64(6), int64(6))
+}
+
+func TestApplyChanLess1(t *testing.T) {
+  xs := gochart.NewInts(0, 3, 5)
+  assertPanic(t, func() {
+    xs.ApplyChan(to30By2Int())
+  })
+}
+
+func TestApplyChanGreater(t *testing.T) {
+  xs := gochart.NewInts(3, 3, 6)
+  assertPanic(t, func() {
+    xs.ApplyChan(to30By2Int())
+  })
+}
+
+func TestApplyChanDown(t *testing.T) {
+  xs := gochart.NewInts(15, -3, 5)
+  assertPanic(t, func() {
+    xs.ApplyChan(to30By2Int())
+  })
 }
 
 func TestApplyFloat(t *testing.T) {
