@@ -50,25 +50,15 @@ func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
   return result
 }
 
-// ApplyBigIntChan uses ch to return the resulting Y values.
-// If the X value is 1, the corresponding Y value will be the first value
-// off ch. If the X value is 2, the corresponding Y value will be the second
-// value off of ch etc. ApplyBigIntChan panics If any of the X values are
-// less than one or greater then the number of values in ch.
-// ApplyBigIntChan panics if the X values decrease.
-// ApplyBigIntChan panics if it encounters any nil values in ch.
+// i.ApplyBigIntChan(ch) is the same as
+// i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
 func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
-  return i.applyChan(bigIntChanType(ch))
+  return i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
 }
 
-// ApplyChan uses ch to return the resulting Y values.
-// If the X value is 1, the corresponding Y value will be the first value
-// off ch. If the X value is 2, the corresponding Y value will be the second
-// value off of ch etc. ApplyChan panics if any of the X values are less than
-// one or greater than the number of values in ch.
-// ApplyChan panics if the X values decrease.
+// i.ApplyChan(ch) is the same as i.Apply(gomath.NewIntChan(ch).Nth)
 func (i *Ints) ApplyChan(ch <-chan int64) Values {
-  return i.applyChan(intChanType(ch))
+  return i.Apply(gomath.NewIntChan(ch).Nth)
 }
 
 func (i *Ints) Value(idx int) interface{} {
@@ -84,58 +74,6 @@ func (i *Ints) Len() int {
 
 func (i *Ints) value(idx int) int64 {
   return i.start + int64(idx)*i.inc
-}
-
-func (i *Ints) applyChan(ch chanType) Values {
-  if i.inc < 0 {
-    panic("Increment less than 0")
-  }
-  if i.start < 1 {
-    panic("First X less than 1")
-  }
-  result := make(valueSlice, i.count)
-  var val interface{}
-  var valIndex int64
-  for j := 0; j < i.count; j++ {
-    idx := i.value(j)
-    for valIndex < idx {
-      val = ch.read()
-      valIndex++
-    }
-    result[j] = val
-  }
-  return result
-}
-
-type chanType interface {
-  read() interface{}
-}
-
-type bigIntChanType <-chan *big.Int
-
-func (b bigIntChanType) read() interface{} {
-  val, ok := <-b
-  if !ok {
-    panic(kNoMoreValues)
-  }
-  if val == nil {
-    panic("nil *big.Int encountered on channel")
-  }
-  return val
-}
-
-type intChanType <-chan int64
-
-func (i intChanType) read() interface{} {
-  val, ok := <-i
-  if !ok {
-    panic(kNoMoreValues)
-  }
-  return val
-}
-
-func (i intChanType) zero() interface{} {
-  return int64(0)
 }
 
 // Floats is a sequence of floating point X values.
