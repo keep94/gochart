@@ -50,12 +50,20 @@ func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
   return result
 }
 
+// ApplyBigIntChan uses ch to return the resulting Y values.
+// If the X value is 1, the corresponding Y value will be the first value
+// off ch. If the X value is 2, the corresponding Y value will be the second
+// value off ch etc.
 // i.ApplyBigIntChan(ch) is the same as
 // i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
 func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
   return i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
 }
 
+// ApplyChan uses ch to return the resulting Y values.
+// If the X value is 1, the corresponding Y value will be the first value
+// off ch. If the X value is 2, the corresponding Y value will be the second
+// value off ch etc.
 // i.ApplyChan(ch) is the same as i.Apply(gomath.NewIntChan(ch).Nth)
 func (i *Ints) ApplyChan(ch <-chan int64) Values {
   return i.Apply(gomath.NewIntChan(ch).Nth)
