@@ -53,7 +53,8 @@ func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
 // ApplyBigIntChan uses ch to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
 // off ch. If the X value is 2, the corresponding Y value will be the second
-// value off ch etc.
+// value off ch etc. X values must be greater than 0 and ascending or else
+// ApplyBigIntChan panics. If ch runs out of values, ApplyBigIntChan panics.
 // i.ApplyBigIntChan(ch) is the same as
 // i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
 func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
@@ -63,10 +64,16 @@ func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
 // ApplyChan uses ch to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
 // off ch. If the X value is 2, the corresponding Y value will be the second
-// value off ch etc.
-// i.ApplyChan(ch) is the same as i.Apply(gomath.NewIntChan(ch).Nth)
+// value off ch etc. X values must be greater than 0 and ascending or else
+// ApplyChan panics. If ch runs out of values, the resulting Y value is always
+// 0.
 func (i *Ints) ApplyChan(ch <-chan int64) Values {
-  return i.Apply(gomath.NewIntChan(ch).Nth)
+  channel := gomath.NewIntChan(ch)
+  return i.Apply(
+      func(x int64) int64 {
+        y, _ := channel.SafeNth(x)
+        return y
+      })
 }
 
 func (i *Ints) Value(idx int) interface{} {

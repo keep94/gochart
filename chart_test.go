@@ -67,10 +67,10 @@ func TestApplyBigIntChanNilValues(t *testing.T) {
 }
 
 func TestApplyChan(t *testing.T) {
-  xs := gochart.NewInts(3, 3, 5)
+  xs := gochart.NewInts(3, 3, 6)
   ys := xs.ApplyChan(to30By2Int())
   assertValuesEqual(
-      t, ys, int64(6), int64(12), int64(18), int64(24), int64(30))
+      t, ys, int64(6), int64(12), int64(18), int64(24), int64(30), int64(0))
 }
 
 func TestApplyChanSame(t *testing.T) {
@@ -82,13 +82,6 @@ func TestApplyChanSame(t *testing.T) {
 
 func TestApplyChanLess1(t *testing.T) {
   xs := gochart.NewInts(0, 3, 5)
-  assertPanic(t, func() {
-    xs.ApplyChan(to30By2Int())
-  })
-}
-
-func TestApplyChanGreater(t *testing.T) {
-  xs := gochart.NewInts(3, 3, 6)
   assertPanic(t, func() {
     xs.ApplyChan(to30By2Int())
   })
