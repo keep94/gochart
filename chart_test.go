@@ -59,13 +59,6 @@ func TestApplyBigIntChanDown(t *testing.T) {
   })
 }
 
-func TestApplyBigIntChanNilValues(t *testing.T) {
-  xs := gochart.NewInts(1, 1, 5)
-  assertPanic(t, func() {
-    xs.ApplyBigIntChan(nilBigInts())
-  })
-}
-
 func TestApplyChan(t *testing.T) {
   xs := gochart.NewInts(3, 3, 6)
   ys := xs.ApplyChan(to30By2Int())
@@ -238,19 +231,6 @@ func to30By2() <-chan *big.Int {
     for i := 2; i <= 30; i += 2 {
       result <- big.NewInt(int64(i))
     }
-  }()
-  return result
-}
-
-func nilBigInts() <- chan *big.Int {
-  result := make(chan *big.Int)
-  go func() {
-    defer close(result)
-    result <- big.NewInt(3)
-    result <- big.NewInt(3)
-    result <- nil
-    result <- big.NewInt(3)
-    result <- big.NewInt(3)
   }()
   return result
 }
