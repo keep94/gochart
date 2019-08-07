@@ -117,12 +117,13 @@ func (f *Floats) Apply(fn func(float64) float64) Values {
 
 // ApplyInv applies the inverse of fn to each of these X values and returns the
 // resulting Y values. The Y values that ApplyInv produces will be between
-// start and end. fn must be monotone increasing or decreasing between
-// start and end.
-func (f *Floats) ApplyInv(fn func(float64) float64, start, end float64) Values {
+// lower and upper. fn must be monotone increasing or decreasing between
+// lower and upper.
+func (f *Floats) ApplyInv(
+    fn func(float64) float64, lower, upper float64) Values {
   result := make(valueSlice, f.count)
   for i := 0; i < f.count; i++ {
-    result[i] = gomath.Inverse(fn, f.value(i), start, end)
+    result[i] = gomath.Inverse(fn, f.value(i), lower, upper)
   }
   return result
 }

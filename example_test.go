@@ -163,7 +163,7 @@ func ExampleFloats_ApplyInv() {
       func(x float64) float64 {
         return math.Pow(x, x)
       },
-      0.0,
+      1.0,
       5.0)
   gochart.NewChart(
       xs, ys, gochart.NumRows(50), gochart.YFormat("%.4f")).WriteTo(nil)
