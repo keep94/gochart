@@ -6,6 +6,7 @@ import (
   "testing"
 
   "github.com/keep94/gochart"
+  "github.com/keep94/gomath"
 )
 
 func TestApply(t *testing.T) {
@@ -18,72 +19,65 @@ func TestApply(t *testing.T) {
 func TestApplyBigInt(t *testing.T) {
   xs := gochart.NewInts(10, 1, 4)
   ys := xs.ApplyBigInt(
-      func(x int64) *big.Int {
+      func(x int64, result *big.Int) *big.Int {
         bx := big.NewInt(x)
-        return new(big.Int).Mul(bx, bx)
+        return result.Mul(bx, bx)
       })
   assertBigValuesEqual(t, ys, 100, 121, 144, 169)
 }
 
-func TestApplyBigIntChan(t *testing.T) {
+func TestApplyBigIntStream(t *testing.T) {
   xs := gochart.NewInts(3, 3, 5)
-  ys := xs.ApplyBigIntChan(to30By2())
+  ys := xs.ApplyBigIntStream(upBy2())
   assertBigValuesEqual(t, ys, 6, 12, 18, 24, 30)
 }
 
-func TestApplyBigIntChanSame(t *testing.T) {
+func TestApplyBigIntStreamSame(t *testing.T) {
   xs := gochart.NewInts(3, 0, 5)
   assertPanic(t, func() {
-    xs.ApplyBigIntChan(to30By2())
+    xs.ApplyBigIntStream(upBy2())
   })
 }
 
-func TestApplyBigIntChanLess1(t *testing.T) {
+func TestApplyBigIntStreamLess1(t *testing.T) {
   xs := gochart.NewInts(0, 3, 5)
   assertPanic(t, func() {
-    xs.ApplyBigIntChan(to30By2())
+    xs.ApplyBigIntStream(upBy2())
   })
 }
 
-func TestApplyBigIntChanGreater(t *testing.T) {
-  xs := gochart.NewInts(3, 3, 6)
-  assertPanic(t, func() {
-    xs.ApplyBigIntChan(to30By2())
-  })
-}
-
-func TestApplyBigIntChanDown(t *testing.T) {
+func TestApplyBigIntStreamDown(t *testing.T) {
   xs := gochart.NewInts(15, -3, 5)
   assertPanic(t, func() {
-    xs.ApplyBigIntChan(to30By2())
+    xs.ApplyBigIntStream(upBy2())
   })
 }
 
-func TestApplyChan(t *testing.T) {
+func TestApplyStream(t *testing.T) {
   xs := gochart.NewInts(3, 3, 6)
-  ys := xs.ApplyChan(to30By2Int())
+  ys := xs.ApplyStream(to30By2())
   assertValuesEqual(
       t, ys, int64(6), int64(12), int64(18), int64(24), int64(30), int64(0))
 }
 
-func TestApplyChanSame(t *testing.T) {
+func TestApplyStreamSame(t *testing.T) {
   xs := gochart.NewInts(3, 0, 5)
   assertPanic(t, func() {
-    xs.ApplyChan(to30By2Int())
+    xs.ApplyStream(to30By2())
   })
 }
 
-func TestApplyChanLess1(t *testing.T) {
+func TestApplyStreamLess1(t *testing.T) {
   xs := gochart.NewInts(0, 3, 5)
   assertPanic(t, func() {
-    xs.ApplyChan(to30By2Int())
+    xs.ApplyStream(to30By2())
   })
 }
 
-func TestApplyChanDown(t *testing.T) {
+func TestApplyStreamDown(t *testing.T) {
   xs := gochart.NewInts(15, -3, 5)
   assertPanic(t, func() {
-    xs.ApplyChan(to30By2Int())
+    xs.ApplyStream(to30By2())
   })
 }
 
@@ -224,26 +218,41 @@ func assertBigValuesEqual(
   }
 }
 
-func to30By2() <-chan *big.Int {
-  result := make(chan *big.Int)
-  go func() {
-    defer close(result)
-    for i := 2; i <= 30; i += 2 {
-      result <- big.NewInt(int64(i))
-    }
-  }()
-  return result
+type linearBigIntStream struct {
+  start *big.Int
+  incr *big.Int
 }
 
-func to30By2Int() <-chan int64 {
-  result := make(chan int64)
-  go func() {
-    defer close(result)
-    for i := int64(2); i <= 30; i +=2 {
-      result <- i
-    }
-  }()
-  return result
+func (s *linearBigIntStream) Next(value *big.Int) *big.Int {
+  if value != nil {
+    value.Set(s.start)
+  }
+  s.start.Add(s.start, s.incr)
+  return value
+}
+
+func upBy2() gomath.BigIntStream {
+  return &linearBigIntStream{start: big.NewInt(2), incr: big.NewInt(2)}
+}
+
+type linearIntStream struct {
+  start int64
+  incr int64
+  max int64
+}
+
+func (s *linearIntStream) Next() (result int64, ok bool) {
+  if s.start > s.max {
+    return
+  }
+  result = s.start
+  ok = true
+  s.start += s.incr
+  return
+}
+
+func to30By2() gomath.IntStream {
+  return &linearIntStream{start: 2, incr: 2, max: 30}
 }
 
 func assertCloseTo(t *testing.T, expected float64, actual float64) {

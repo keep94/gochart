@@ -1,7 +1,6 @@
 package gochart_test
 
 import (
-  "context"
   "fmt"
   "math"
   "strings"
@@ -46,13 +45,11 @@ func ExampleInts_ApplyBigInt() {
   // +---+---------+---+---------+---+---------+---+---------+
 }
 
-func ExampleInts_ApplyBigIntChan() {
-  ctx, cancel := context.WithCancel(context.Background())
-  defer cancel()
+func ExampleInts_ApplyBigIntStream() {
   // From the github.com/keep94/gomath package
-  uglies := gomath.Ugly(ctx, 3, 5, 7)
+  uglies := gomath.Ugly(3, 5, 7)
   xs := gochart.NewInts(1, 1, 100)
-  ys := xs.ApplyBigIntChan(uglies)
+  ys := xs.ApplyBigIntStream(uglies)
   gochart.NewChart(xs, ys, gochart.NumCols(4)).WriteTo(nil)
   // Output:
   // +---+-----+---+-----+---+-----+---+-----+
@@ -84,13 +81,11 @@ func ExampleInts_ApplyBigIntChan() {
   // +---+-----+---+-----+---+-----+---+-----+
 }
 
-func ExampleInts_ApplyChan() {
-  ctx, cancel := context.WithCancel(context.Background())
-  defer cancel()
+func ExampleInts_ApplyStream() {
   // From the github.com/keep94/gomath package
-  harshads := gomath.Harshads(ctx, 1)
+  harshads := gomath.Harshads(1)
   xs := gochart.NewInts(1, 1, 100)
-  ys := xs.ApplyChan(harshads)
+  ys := xs.ApplyStream(harshads)
   gochart.NewChart(xs, ys, gochart.NumCols(4)).WriteTo(nil)
   // Output:
   // +---+---+---+---+---+---+---+---+

@@ -13,7 +13,6 @@ import (
 
 const (
   kIdxOutOfRange = "idx out of range"
-  kNoMoreValues = "No more values on channel"
 )
 
 // Ints is a sequence of integer X values.
@@ -41,37 +40,37 @@ func (i *Ints) Apply(f func(int64) int64) Values {
 }
 
 // ApplyBigInt applies f to each of these X values and returns the resulting
-// Y values. f must return a new *big.Int each time.
-func (i *Ints) ApplyBigInt(f func(int64) *big.Int) Values {
+// Y values. f must store the result in result and return result.
+func (i *Ints) ApplyBigInt(f func(x int64, result *big.Int) *big.Int) Values {
   result := make(valueSlice, i.count)
   for j := 0; j < i.count; j++ {
-    result[j] = f(i.value(j))
+    result[j] = f(i.value(j), new(big.Int))
   }
   return result
 }
 
-// ApplyBigIntChan uses ch to return the resulting Y values.
+// ApplyBigIntStream uses stream to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
-// off ch. If the X value is 2, the corresponding Y value will be the second
-// value off ch etc. X values must be greater than 0 and ascending or else
-// ApplyBigIntChan panics. If ch runs out of values, ApplyBigIntChan panics.
-// i.ApplyBigIntChan(ch) is the same as
-// i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
-func (i *Ints) ApplyBigIntChan(ch <-chan *big.Int) Values {
-  return i.ApplyBigInt(gomath.NewBigIntChan(ch).Nth)
+// off stream. If the X value is 2, the corresponding Y value will be the second
+// value off stream etc. X values must be greater than 0 and ascending or else
+// ApplyBigIntStream panics.
+// i.ApplyBigIntStream(stream) is the same as
+// i.ApplyBigInt(gomath.NewNthBigInt(stream).Nth)
+func (i *Ints) ApplyBigIntStream(stream gomath.BigIntStream) Values {
+  return i.ApplyBigInt(gomath.NewNthBigInt(stream).Nth)
 }
 
-// ApplyChan uses ch to return the resulting Y values.
+// ApplyStream uses stream to return the resulting Y values.
 // If the X value is 1, the corresponding Y value will be the first value
-// off ch. If the X value is 2, the corresponding Y value will be the second
-// value off ch etc. X values must be greater than 0 and ascending or else
-// ApplyChan panics. If ch runs out of values, the resulting Y value is always
-// 0.
-func (i *Ints) ApplyChan(ch <-chan int64) Values {
-  channel := gomath.NewIntChan(ch)
+// off stream. If the X value is 2, the corresponding Y value will be the
+// second value off stream etc. X values must be greater than 0 and ascending
+// or else ApplyStream panics. If stream runs out of values, the resulting Y
+// value is always 0.
+func (i *Ints) ApplyStream(stream gomath.IntStream) Values {
+  nth := gomath.NewNthInt(stream)
   return i.Apply(
       func(x int64) int64 {
-        y, _ := channel.SafeNth(x)
+        y, _ := nth.SafeNth(x)
         return y
       })
 }
