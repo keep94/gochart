@@ -224,9 +224,7 @@ type linearBigIntStream struct {
 }
 
 func (s *linearBigIntStream) Next(value *big.Int) *big.Int {
-  if value != nil {
-    value.Set(s.start)
-  }
+  value.Set(s.start)
   s.start.Add(s.start, s.incr)
   return value
 }
