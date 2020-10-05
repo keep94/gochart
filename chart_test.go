@@ -53,6 +53,27 @@ func TestApplyBigIntStreamDown(t *testing.T) {
 	})
 }
 
+func TestApplySlice(t *testing.T) {
+	xs := gochart.NewInts(2, 2, 5)
+	ys := xs.ApplySlice([]int64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29})
+	assertValuesEqual(
+		t, ys, int64(3), int64(7), int64(13), int64(19), int64(29))
+}
+
+func TestApplySlicePanicNegative(t *testing.T) {
+	xs := gochart.NewInts(0, 1, 3)
+	assertPanic(t, func() {
+		xs.ApplySlice([]int64{1, 2, 3})
+	})
+}
+
+func TestApplySlicePanicPastLength(t *testing.T) {
+	xs := gochart.NewInts(1, 1, 3)
+	assertPanic(t, func() {
+		xs.ApplySlice([]int64{1, 2})
+	})
+}
+
 func TestApplyStream(t *testing.T) {
 	xs := gochart.NewInts(3, 3, 6)
 	ys := xs.ApplyStream(to30By2())

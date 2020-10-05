@@ -81,6 +81,26 @@ func ExampleInts_ApplyBigIntStream() {
 	// +---+-----+---+-----+---+-----+---+-----+
 }
 
+func ExampleInts_ApplySlice() {
+	// From the github.com/keep94/gomath package
+	factorsOf100 := gomath.Factors(100)
+	xs := gochart.NewInts(1, 1, len(factorsOf100))
+	ys := xs.ApplySlice(factorsOf100)
+	gochart.NewChart(xs, ys).WriteTo(nil)
+	// Output:
+	// +-+---+
+	// |1|  1|
+	// |2|  2|
+	// |3|  4|
+	// |4|  5|
+	// |5| 10|
+	// |6| 20|
+	// |7| 25|
+	// |8| 50|
+	// |9|100|
+	// +-+---+
+}
+
 func ExampleInts_ApplyStream() {
 	// From the github.com/keep94/gomath package
 	harshads := gomath.Harshads(1)

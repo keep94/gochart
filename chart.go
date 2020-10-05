@@ -39,6 +39,19 @@ func (i *Ints) Apply(f func(int64) int64) Values {
 	return result
 }
 
+// ApplySlice uses s to return the resulting Y values.
+// If the X value is 1, the corresponding Y value will s[0];
+// If the X value is 2, the corresponding Y value will be s[1] etc.;
+// X values must be greater than 0 and less than or equal to len(s) or else
+// or else ApplySlice panics.
+func (i *Ints) ApplySlice(s []int64) Values {
+	result := make(valueSlice, i.count)
+	for j := 0; j < i.count; j++ {
+		result[j] = s[i.value(j)-1]
+	}
+	return result
+}
+
 // ApplyBigInt applies f to each of these X values and returns the resulting
 // Y values. f must store the result in result and return result.
 func (i *Ints) ApplyBigInt(f func(x int64, result *big.Int) *big.Int) Values {
