@@ -9,6 +9,20 @@ import (
 	"github.com/keep94/gomath"
 )
 
+func ExampleFractionDigits() {
+	xs := gochart.NewFloats(1.01, .01, 5)
+	ys := xs.Apply(math.Sqrt)
+	gochart.NewChart(xs, ys, gochart.FractionDigits(3, 4)).WriteTo(nil)
+	// Output:
+	// +-----+------+
+	// |1.010|1.0050|
+	// |1.020|1.0100|
+	// |1.030|1.0149|
+	// |1.040|1.0198|
+	// |1.050|1.0247|
+	// +-----+------+
+}
+
 func ExampleInts_ApplyBigInt() {
 	// From the github.com/keep94/gomath package.
 	p := gomath.NewPartition()

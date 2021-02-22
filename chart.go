@@ -195,6 +195,14 @@ func YFormat(fmtStr string) Option {
 	})
 }
 
+// FractionDigits sets the number of fraction digits for both X and Y values.
+func FractionDigits(xFractionDigits, yFractionDigits int) Option {
+	return Options{
+		XFormat(fmt.Sprintf("%%.%df", xFractionDigits)),
+		YFormat(fmt.Sprintf("%%.%df", yFractionDigits)),
+	}
+}
+
 // NumRows sets the number of rows in the chart. The default number of rows
 // is the minimum number of rows needed to show all the values given the
 // number of columns. If neither numRows or numCols are set, numRows
