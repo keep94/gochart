@@ -175,6 +175,14 @@ func TestChartDimensions(t *testing.T) {
 	assertEqual(t, 5, chart.NumCols())
 }
 
+func TestOptions(t *testing.T) {
+	xs := gochart.NewInts(1, 1, 100)
+	options := gochart.Options{gochart.NumCols(6), gochart.NumRows(26)}
+	chart := gochart.NewChart(xs, xs, options)
+	assertEqual(t, 26, chart.NumRows())
+	assertEqual(t, 6, chart.NumCols())
+}
+
 func TestNewChartPanic(t *testing.T) {
 	xs := gochart.NewInts(1, 1, 10)
 	ys := gochart.NewInts(1, 1, 9)

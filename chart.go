@@ -167,20 +167,32 @@ type Values interface {
 }
 
 // Option represents an option for creating a chart.
-type Option option
+type Option interface {
+	mutate(s *settingsType)
+}
+
+// Options is a list of Option values which also satisfies the Option
+// interface.
+type Options []Option
+
+func (o Options) mutate(s *settingsType) {
+	for _, option := range o {
+		option.mutate(s)
+	}
+}
 
 // XFormat sets the format string for formatting X values, default is "%v"
 func XFormat(fmtStr string) Option {
-	return func(s *settingsType) {
+	return optionFunc(func(s *settingsType) {
 		s.xFormat = fmtStr
-	}
+	})
 }
 
 // YFormat sets the format string for formatting Y values, default is "%v"
 func YFormat(fmtStr string) Option {
-	return func(s *settingsType) {
+	return optionFunc(func(s *settingsType) {
 		s.yFormat = fmtStr
-	}
+	})
 }
 
 // NumRows sets the number of rows in the chart. The default number of rows
@@ -188,9 +200,9 @@ func YFormat(fmtStr string) Option {
 // number of columns. If neither numRows or numCols are set, numRows
 // defaults to the number of values and numCols defaults to 1.
 func NumRows(count int) Option {
-	return func(s *settingsType) {
+	return optionFunc(func(s *settingsType) {
 		s.numRows = count
-	}
+	})
 }
 
 // NumCols sets the number of columns in the chart. The default number of
@@ -198,9 +210,9 @@ func NumRows(count int) Option {
 // given the number of rows. If neither numRows or numCols are set, numCols
 // defaults to 1 and numRows defaults to the number of values.
 func NumCols(count int) Option {
-	return func(s *settingsType) {
+	return optionFunc(func(s *settingsType) {
 		s.numCols = count
-	}
+	})
 }
 
 // Chart represents a chart of X and Y values.
@@ -220,7 +232,7 @@ func NewChart(xs, ys Values, options ...Option) *Chart {
 		panic("xs and ys must have same length")
 	}
 	settings := &settingsType{xFormat: "%v", yFormat: "%v"}
-	settings.applyOptions(options)
+	Options(options).mutate(settings)
 	settings.computeDimensions(xs.Len())
 	xyValues := createXYValues(xs, ys, settings.xFormat, settings.yFormat)
 	xwidth, ywidth := xyValues.widths()
@@ -322,19 +334,17 @@ func (xy xyValuesType) widths() (xwidth int, ywidth int) {
 	return
 }
 
-type option func(s *settingsType)
+type optionFunc func(s *settingsType)
+
+func (o optionFunc) mutate(s *settingsType) {
+	o(s)
+}
 
 type settingsType struct {
 	xFormat string
 	yFormat string
 	numRows int
 	numCols int
-}
-
-func (s *settingsType) applyOptions(options []Option) {
-	for _, option := range options {
-		option(s)
-	}
 }
 
 func (s *settingsType) computeDimensions(count int) {
